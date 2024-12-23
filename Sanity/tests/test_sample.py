@@ -28,7 +28,7 @@ from appium.webdriver.common.appiumby import AppiumBy
 #         print("Airplane mode on!!!!!!")
 
 
-def test_notification_panel_working_fine():
+def test_notification_panel_working_fine(device_id1):
     print("=====================test_notification_panel_working_fine()")
 
     output = subprocess.check_output("adb -s " + device_id1 + " shell wm size", shell=True)
@@ -54,7 +54,8 @@ def test_notification_panel_working_fine():
 
     try:
         # Get build version dynamically
-        build_version = subprocess.check_output(["adb " + device_id1 + " shell", "getprop", "ro.build.display.id"], text=True).strip()
+        build_version = subprocess.check_output(["adb " + device_id1 + " shell", "getprop", "ro.build.display.id"],
+                                                text=True).strip()
         screenshot_folder = os.path.join(os.path.dirname(os.getcwd()), "Screenshot", build_version)
         # print(screenshot_folder)
 
@@ -65,7 +66,8 @@ def test_notification_panel_working_fine():
 
         # Capture screenshot using ADB
         device_screenshot_path = f"/sdcard/{screenshot_name}"
-        subprocess.run(["adb", " -s " + device_id1 + " shell ", "screencap", " -p ", device_screenshot_path], check=True)
+        subprocess.run(["adb", " -s " + device_id1 + " shell ", "screencap", " -p ", device_screenshot_path],
+                       check=True)
 
         # Pull screenshot to local path
         subprocess.run(["adb", " -s " + device_id1 + " pull ", device_screenshot_path, local_path], check=True)
@@ -81,14 +83,15 @@ def test_notification_panel_working_fine():
     time.sleep(5)
 
 
-def test_verify_apn_is_loaded_automatically(appium_driver):
+def test_verify_apn_is_loaded_automatically(appium_driver, device_id1):
     print("=====================test_verify_apn_is_loaded_automatically()")
     subprocess.check_output("adb -s " + device_id1 + " shell input keyevent KEYCODE_HOME")
     subprocess.check_output(
         "adb -s " + device_id1 + " shell am start -n com.android.settings/com.android.settings.Settings", shell=True)
     time.sleep(10)
 
-    appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Network & internet")').click()
+    appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                               value='new UiSelector().text("Network & internet")').click()
     # network_and_internet = appium_driver.find_element(AppiumBy.XPATH, '//android.widget.TextView['
     #                                                                   '@resource-id="android:id/title" and '
     #                                                                   '@text="Network & internet"]').click()
@@ -133,14 +136,15 @@ def test_verify_apn_is_loaded_automatically(appium_driver):
     subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
     time.sleep(5)
 
-def test_verify_apn_is_loaded_automatically(appium_driver):
-    print("=====================test_verify_apn_is_loaded_automatically()")
+
+def test_verify_data_roaming_works(appium_driver, device_id1):
+    print("=====================test_verify_data_roaming_works()")
     # print("Unlocking device...")
-    subprocess.check_output("adb shell input keyevent 82", shell=True)
+    subprocess.check_output("adb -s " + device_id1 + " input keyevent 82", shell=True)
 
     # print("Navigating to 'Network and Internet' > 'SIMs' > 'JIO'...")
     subprocess.check_output(
-        "adb shell am start -n com.android.settings/com.android.settings.Settings")
+        "adb -s " + device_id1 + " am start -n com.android.settings/com.android.settings.Settings")
 
     network_and_internet = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
                                                       value='new UiSelector().text("Network and internet")')
@@ -151,13 +155,13 @@ def test_verify_apn_is_loaded_automatically(appium_driver):
     click_on_sim.click()
 
     appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                                   value='new UiSelector().resourceId("android:id/summary")').click()
+                               value='new UiSelector().resourceId("android:id/summary")').click()
     # navigate_into_sim.click()
 
     check_roaming_option = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
                                                       value='new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text("Roaming"))')
     check_roaming_switch = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                                   value='new UiSelector().resourceId("android:id/switch_widget").instance(2)')
+                                                      value='new UiSelector().resourceId("android:id/switch_widget").instance(2)')
 
     check_roaming_state = check_roaming_switch.get_attribute("checked")
 
@@ -169,5 +173,5 @@ def test_verify_apn_is_loaded_automatically(appium_driver):
     # If Roaming is enabled, print success
     print("Roaming is enabled as expected.")
 
-    subprocess.check_output("adb shell am force-stop com.android.settings", shell=True)
-
+    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    time.sleep(5)
