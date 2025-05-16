@@ -1,11 +1,28 @@
-# tests/conftest.py
-
 import pytest
-from config.appium_config import appium_start
+from Sanity.config.appium_config import appium_start
+
+
+@pytest.fixture(scope="session")
+def device_id1():
+    return "15SA0424123837"
+
+
+@pytest.fixture(scope="session")
+def device_id2():
+    return "08SA23000010"
 
 
 @pytest.fixture(scope="function")
-def appium_driver():
+def appium_driver1():
     driver = appium_start()
     yield driver
-    driver.quit()
+    # driver.quit()
+
+
+@pytest.fixture(scope="function")
+def appium_driver2(device_id2):
+    """
+    Fixture for Appium driver aligned with device_id2.
+    """
+    driver = appium_start(device_id=device_id2)
+    yield driver
