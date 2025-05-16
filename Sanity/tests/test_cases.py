@@ -4,31 +4,34 @@ import time
 from appium.webdriver.common.appiumby import AppiumBy
 
 
-# from appium.webdriver.common.actions.action_builder import ActionBuilder
-# from appium.webdriver.common.actions.pointer_input import PointerInput, PointerEvent
+def test_sample(appium_driver1, device_id1):
+    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    time.sleep(5)
+
+    subprocess.check_output(
+        "adb -s " + device_id1 + " shell am start -n com.android.settings/com.android.settings.Settings", shell=True)
+    time.sleep(10)
+
+    network_and_internet = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                      value='new UiSelector().text("Network & internet")')
+    network_and_internet.click()
+    time.sleep(2)
+
+    airplane_mode = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                               value='new UiSelector().text("Airplane mode")')
+    airplane_mode_switch = appium_driver1.find_element(by=AppiumBy.ID, value='android:id/switch_widget')
+
+    airplane_mode_state = airplane_mode_switch.get_attribute("checked")
+
+    if airplane_mode_state == "false":
+        print("Airplane mode off by default")
+    else:
+        print("Airplane mode on!!!!!!")
+
+    time.sleep(5)
 
 
-# def test_sample(appium_driver):
-#     subprocess.check_output("adb shell am start -n com.android.settings/com.android.settings.Settings")
-#
-#     network_and_internet = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-#                                                       value='new UiSelector().text("Network & internet")')
-#     network_and_internet.click()
-#     time.sleep(2)
-#
-#     airplane_mode = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-#                                                value='new UiSelector().text("Airplane mode")')
-#     airplane_mode_switch = appium_driver.find_element(by=AppiumBy.ID, value='android:id/switch_widget')
-#
-#     airplane_mode_state = airplane_mode_switch.get_attribute("checked")
-#
-#     if airplane_mode_state == "false":
-#         print("Airplane mode off by default")
-#     else:
-#         print("Airplane mode on!!!!!!")
-
-
-def test_notification_panel_working_fine(device_id1):
+def test_notification_panel_working_fine(appium_driver1, device_id1):
     print("=====================test_notification_panel_working_fine()")
 
     output = subprocess.check_output("adb -s " + device_id1 + " shell wm size", shell=True)
@@ -51,7 +54,6 @@ def test_notification_panel_working_fine(device_id1):
         "adb -s " + device_id1 + " shell input swipe " + str_x_axis + " 0 " + str_x_axis + " " + str_y_axis, shell=True)
 
     # screenshot_capture()
-
     try:
         # Get build version dynamically
         build_version = subprocess.check_output(["adb " + device_id1 + " shell", "getprop", "ro.build.display.id"],
@@ -83,44 +85,51 @@ def test_notification_panel_working_fine(device_id1):
     time.sleep(5)
 
 
-def test_verify_apn_is_loaded_automatically(appium_driver, device_id1):
+def test_verify_apn_is_loaded_automatically(appium_driver1, device_id1):
     print("=====================test_verify_apn_is_loaded_automatically()")
+    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    time.sleep(5)
+
+    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    time.sleep(5)
+
     subprocess.check_output("adb -s " + device_id1 + " shell input keyevent KEYCODE_HOME")
+
     subprocess.check_output(
         "adb -s " + device_id1 + " shell am start -n com.android.settings/com.android.settings.Settings", shell=True)
     time.sleep(10)
 
-    appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                               value='new UiSelector().text("Network & internet")').click()
+    appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                value='new UiSelector().text("Network & internet")').click()
     # network_and_internet = appium_driver.find_element(AppiumBy.XPATH, '//android.widget.TextView['
     #                                                                   '@resource-id="android:id/title" and '
     #                                                                   '@text="Network & internet"]').click()
     time.sleep(2)
 
-    sims_option = appium_driver.find_element(AppiumBy.ANDROID_UIAUTOMATOR, 'new UiSelector().text("SIMs")')
+    sims_option = appium_driver1.find_element(AppiumBy.ANDROID_UIAUTOMATOR, 'new UiSelector().text("SIMs")')
     sims_option.click()
     time.sleep(2)
 
     try:
-        active_sim = appium_driver.find_element(AppiumBy.ANDROID_UIAUTOMATOR,
-                                                'new UiSelector().resourceId("android:id/summary")')
+        active_sim = appium_driver1.find_element(AppiumBy.ANDROID_UIAUTOMATOR,
+                                                 'new UiSelector().resourceId("android:id/summary")')
         active_sim_state = active_sim.get_attribute("text")
         time.sleep(2)
         if active_sim_state == "Active / Default for mobile data, calls, SMS":
-            appium_driver.find_element(AppiumBy.ANDROID_UIAUTOMATOR,
-                                       'new UiSelector().resourceId("android:id/summary")').click()
+            appium_driver1.find_element(AppiumBy.ANDROID_UIAUTOMATOR,
+                                        'new UiSelector().resourceId("android:id/summary")').click()
             # print("scrolling and clicking Access Point Name")
-            appium_driver.find_element(AppiumBy.ANDROID_UIAUTOMATOR,
-                                       'new UiScrollable(new UiSelector().scrollable(true))'
-                                       '.scrollIntoView(new UiSelector().text("Access Point Names"))').click()
+            appium_driver1.find_element(AppiumBy.ANDROID_UIAUTOMATOR,
+                                        'new UiScrollable(new UiSelector().scrollable(true))'
+                                        '.scrollIntoView(new UiSelector().text("Access Point Names"))').click()
             time.sleep(2)
 
-            apn_name = appium_driver.find_element(AppiumBy.ID, 'android:id/title')
+            apn_name = appium_driver1.find_element(AppiumBy.ID, 'android:id/title')
             get_apn_name = apn_name.get_attribute("text")
             print("APN name is : ", get_apn_name)
 
             # print("checking apn names")
-            apn_details = appium_driver.find_element(AppiumBy.ID, 'android:id/title')
+            apn_details = appium_driver1.find_element(AppiumBy.ID, 'android:id/title')
             apn_state = apn_details.get_attribute("enabled")
             time.sleep(2)
 
@@ -129,39 +138,39 @@ def test_verify_apn_is_loaded_automatically(appium_driver, device_id1):
                 print("default apn is enabled")
             else:
                 print("apn not enabled")
-
-    except:
-        print("SIM Card not detected")
-
-    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    except Exception as e:
+        print("SIM Card not detected", e)
     time.sleep(5)
 
 
-def test_verify_data_roaming_works(appium_driver, device_id1):
+def test_verify_data_roaming_works(appium_driver1, device_id1):
     print("=====================test_verify_data_roaming_works()")
-    # print("Unlocking device...")
-    subprocess.check_output("adb -s " + device_id1 + " input keyevent 82", shell=True)
+    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    time.sleep(5)
 
     # print("Navigating to 'Network and Internet' > 'SIMs' > 'JIO'...")
     subprocess.check_output(
-        "adb -s " + device_id1 + " am start -n com.android.settings/com.android.settings.Settings")
+        "adb -s " + device_id1 + " shell am start -n com.android.settings/com.android.settings.Settings")
+    time.sleep(10)
 
-    network_and_internet = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                                      value='new UiSelector().text("Network and internet")')
-    network_and_internet.click()
+    appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                value='new UiSelector().text("Network & internet")').click()
+
     time.sleep(2)
 
-    click_on_sim = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("SIMs")')
+    click_on_sim = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("SIMs")')
     click_on_sim.click()
+    time.sleep(2)
 
-    appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                               value='new UiSelector().resourceId("android:id/summary")').click()
+    appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                value='new UiSelector().resourceId("android:id/summary")').click()
     # navigate_into_sim.click()
+    time.sleep(2)
 
-    check_roaming_option = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                                      value='new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text("Roaming"))')
-    check_roaming_switch = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                                      value='new UiSelector().resourceId("android:id/switch_widget").instance(2)')
+    check_roaming_option = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                       value='new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text("Roaming"))')
+    check_roaming_switch = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                       value='new UiSelector().resourceId("android:id/switch_widget").instance(2)')
 
     check_roaming_state = check_roaming_switch.get_attribute("checked")
 
@@ -173,5 +182,4 @@ def test_verify_data_roaming_works(appium_driver, device_id1):
     # If Roaming is enabled, print success
     print("Roaming is enabled as expected.")
 
-    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
     time.sleep(5)

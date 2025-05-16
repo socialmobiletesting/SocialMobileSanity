@@ -7,59 +7,77 @@ import time
 import subprocess
 
 # Global variable to hold the Appium session
-appium_driver = None
+appium_driver1 = None
 
 
 def appium_start():
-    global appium_driver
+    global appium_driver1
 
-    if appium_driver is None:
+    if appium_driver1 is None:
         cap: Dict[str, Any] = {
             'platformName': 'Android',
-            'automationName': 'uiautomator2'
+            'automationName': 'uiautomator2',
+            'browserName': 'Chrome',
+            'chromedriverExecutable': 'C:\\Dropbox\\Tools\\Google\\chromedriver-win64\\chromedriver'
         }
 
         url = 'http://127.0.0.1:4723'
         print("Starting Appium session...")
-        appium_driver = webdriver.Remote(url, options=AppiumOptions().load_capabilities(cap))
-        print("Appium session started:", appium_driver)
+        appium_driver1 = webdriver.Remote(url, options=AppiumOptions().load_capabilities(cap))
+        print("Appium session started:", appium_driver1)
     else:
-        print("Appium session already started:", appium_driver)
+        print("Appium session already started:", appium_driver1)
 
-    return appium_driver
+    return appium_driver1
 
 
 def appium_test1():
     # print("Unlocking device...")
     subprocess.check_output("adb -s " + "08RSA23123505" + " shell input keyevent 82", shell=True)
 
-    # print("Navigating to 'Network and Internet' > 'SIMs' > 'JIO'...")
-    subprocess.check_output("adb -s " + "08RSA23123505" + " shell am start -n com.android.settings/com.android.settings.Settings")
+    appium_driver1.get("https://www.fast.com")
+    time.sleep(15)  # Wait for the speed to load
+    speed_value = appium_driver1.find_element(AppiumBy.XPATH, "//div[@id='speed-value']").text
+    print(speed_value)
 
-    network_and_internet = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                                  value='new UiSelector().text("Network and internet")')
-    network_and_internet.click()
-    time.sleep(2)
 
-    click_on_sim = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("SIMs")')
-    click_on_sim.click()
+# Global variable to hold the Appium session
+appium_driver2 = None
 
-    navigate_into_sim = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("android:id/summary")')
-    navigate_into_sim.click()
 
-    check_roaming_option = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text("Roaming"))')
-    check_roaming_switch = appium_driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                                      value='new UiSelector().resourceId("android:id/switch_widget").instance(2)')
+def appium_start_device2():
+    global appium_driver2
 
-    check_roaming_state = check_roaming_switch.get_attribute("checked")
+    if appium_driver2 is None:
+        cap: Dict[str, Any] = {
+            'platformName': 'Android',
+            'automationName': 'uiautomator2',
+            'browserName': 'Chrome',
+            'chromedriverExecutable': 'C:\\Dropbox\\Tools\\Google\\chromedriver-win64\\chromedriver'
+        }
 
-    if check_roaming_state == "false":
-        print("Roaming off !!!!!!")
+        url = 'http://127.0.0.1:4723'
+        print("Starting Appium session...")
+        appium_driver2 = webdriver.Remote(url, options=AppiumOptions().load_capabilities(cap))
+        print("Appium session started:", appium_driver2)
     else:
-        print("Roaming is on")
+        print("Appium session already started:", appium_driver2)
 
-    subprocess.check_output(
-        "adb shell am force-stop com.android.settings")
+    return appium_driver2
+
+
+def appium_test1_device2():
+    # print("Unlocking device...")
+    subprocess.check_output("adb -s " + "08SA23000010" + " shell input keyevent 82", shell=True)
+
+    appium_driver2.get("https://www.fast.com")
+    time.sleep(15)  # Wait for the speed to load
+    speed_value = appium_driver2.find_element(AppiumBy.XPATH, "//div[@id='speed-value']").text
+    print(speed_value)
+
+
 
 appium_start()
 appium_test1()
+appium_start_device2()
+appium_test1_device2()
