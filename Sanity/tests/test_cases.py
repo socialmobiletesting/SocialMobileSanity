@@ -183,3 +183,60 @@ def test_verify_data_roaming_works(appium_driver1, device_id1):
     print("Roaming is enabled as expected.")
 
     time.sleep(5)
+
+
+def test_check_lte_data_speed(appium_driver1, device_id1):
+    print("=====================test_check_lte_data_speed()")
+
+    subprocess.check_output(
+        "adb -s " + device_id1 + " shell am start -n org.zwanoo.android.speedtest/com.ookla.mobile4.screens.main.MainActivity")
+    time.sleep(10)
+
+    try:
+        app_tutorial_1 = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                         value='new UiSelector().resourceId("org.zwanoo.android.speedtest:id/welcome_message_next_button")')
+        app_tutorial_1.click()
+        time.sleep(2)
+
+        app_tutorial_2 = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                         value='new UiSelector().resourceId("org.zwanoo.android.speedtest:id/permissions_continue_button")')
+        app_tutorial_2.click()
+        time.sleep(2)
+
+        user_location_permission = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                     value='new UiSelector().resourceId("com.android.permissioncontroller:id/permission_allow_foreground_only_button")')
+        user_location_permission.click()
+        time.sleep(2)
+
+        user_call_permission = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                               value='new UiSelector().resourceId("com.android.permissioncontroller:id/permission_allow_button")')
+        user_call_permission.click()
+        time.sleep(2)
+
+        app_own_permission_1 = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                           value='new UiSelector().resourceId("org.zwanoo.android.speedtest:id/enable_bg_sampling_allow_button")')
+        app_own_permission_1.click()
+        time.sleep(2)
+
+        app_own_permission_2 = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                           value='new UiSelector().resourceId("org.zwanoo.android.speedtest:id/dialog_next")')
+        app_own_permission_2.click()
+        time.sleep(2)
+
+        app_own_permission_3 = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                           value='new UiSelector().description("Navigate up")')
+        app_own_permission_3.click()
+        time.sleep(2)
+
+        app_own_permission_4 = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                           value='new UiSelector().resourceId("org.zwanoo.android.speedtest:id/btn_accept_cookies")')
+        app_own_permission_4.click()
+        time.sleep(2)
+    except Exception as e:
+        print("Something wrong while accepting permissions", e)
+
+    initiating_test = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                       value='new UiSelector().resourceId("org.zwanoo.android.speedtest:id/go_button")')
+    initiating_test.click()
+    time.sleep(30)
+
