@@ -188,6 +188,51 @@ def test_verify_data_roaming_works(appium_driver1, device_id1):
 def test_check_lte_data_speed(appium_driver1, device_id1):
     print("=====================test_check_lte_data_speed()")
 
+    # Defined this condition due to PlayStore Home Page tutorial, which can be skipped by re-opening
+    max_retries = 5
+    count = 0
+    while count <= max_retries:
+        try:
+            subprocess.check_output(
+                "adb -s " + device_id1 + " shell am start -n com.android.vending/com.google.android.finsky.activities.MainActivity")
+            time.sleep(10)
+            playstore_app_tutorial_1 = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                 value='new UiSelector().text("Search")')
+            time.sleep(2)
+
+            if playstore_app_tutorial_1.is_displayed():
+                playstore_app_tutorial_1.click()
+                break
+            else:
+                subprocess.check_output(
+                    "adb -s " + device_id1 + " shell pm clear com.android.vending")
+                time.sleep(10)
+                subprocess.check_output(
+                    "adb -s " + device_id1 + " shell am start -n com.android.vending/com.google.android.finsky.activities.MainActivity")
+                time.sleep(10)
+
+        except Exception as e:
+            print(f"Search bar not visible, clearing Play Store data and retrying ({count + 1}/{max_retries})")
+        count = count+1
+
+    search_ookla_app = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                 value='new UiSelector().text("Search Apps & Games")')
+    search_ookla_app.click()
+    time.sleep(2)
+
+    search_ookla_app_1 = appium_driver1.find_element(AppiumBy.CLASS_NAME, "android.widget.EditText")
+    search_ookla_app_1.send_keys("ookla")
+    time.sleep(2)
+
+    search_ookla_app_2 = appium_driver1.find_element(by=AppiumBy.ACCESSIBILITY_ID,
+                                                   value="Search for 'ookla' ")
+    search_ookla_app_2.click()
+    time.sleep(2)
+
+    install_ookla_app = (appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().className("android.widget.Button").instance(1)'))
+    install_ookla_app.click()
+    time.sleep(30)
+
     subprocess.check_output(
         "adb -s " + device_id1 + " shell am start -n org.zwanoo.android.speedtest/com.ookla.mobile4.screens.main.MainActivity")
     time.sleep(10)
