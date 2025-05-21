@@ -4,7 +4,7 @@ from Sanity.config.appium_config import appium_start
 
 @pytest.fixture(scope="session")
 def device_id1():
-    return "090324127271"
+    return "15SA0424123837"
 
 
 @pytest.fixture(scope="session")
