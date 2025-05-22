@@ -309,4 +309,3 @@ def test_check_lte_data_speed(appium_driver1, device_id1):
 
     subprocess.check_output("adb -s " + device_id1 + " shell svc wifi enable", shell=True)
     time.sleep(5)
-
