@@ -53,8 +53,6 @@ def test_notification_panel_working_fine(appium_driver1, device_id1):
     half_y_axis = y_axis / 2
     str_x_axis = str(int(half_x_axis))
     str_y_axis = str(int(half_y_axis))
-    # print(str_x_axis)
-    # print(half_y_axis)
 
     subprocess.check_output(
         "adb -s " + device_id1 + " shell input swipe " + str_x_axis + " 0 " + str_x_axis + " " + str_y_axis, shell=True)
