@@ -7,13 +7,13 @@ import time
 import subprocess
 
 # Global variable to hold the Appium session
-appium_driver = None
+appium_driver_1 = None
 
 
-def appium_start():
-    global appium_driver
+def appium_start_1():
+    global appium_driver_1
 
-    if appium_driver is None:
+    if appium_driver_1 is None:
         cap: Dict[str, Any] = {
             'platformName': 'Android',
             'automationName': 'uiautomator2'
@@ -21,12 +21,12 @@ def appium_start():
 
         url = 'http://127.0.0.1:4723'
         print("Starting Appium session...")
-        appium_driver = webdriver.Remote(url, options=AppiumOptions().load_capabilities(cap))
-        print("Appium session started:", appium_driver)
+        appium_driver_1 = webdriver.Remote(url, options=AppiumOptions().load_capabilities(cap))
+        print("Appium-1 session started:", appium_driver_1)
     else:
-        print("Appium session already started:", appium_driver)
+        print("Appium-1 session already started:", appium_driver_1)
 
-    return appium_driver
+    return appium_driver_1
 
 
 def appium_test1():
@@ -53,15 +53,15 @@ def appium_test1():
         print("Airplane mode on!!!!!!")
 
 
-def appium_stop():
-    global appium_driver
-    if appium_driver is not None:
-        print("Stopping Appium session...", appium_driver)
-        appium_driver.quit()
-        appium_driver = None
-        print("Appium session stopped.")
+def appium_stop_1():
+    global appium_driver_1
+    if appium_driver_1 is not None:
+        print("Stopping Appium session...", appium_driver_1)
+        appium_driver_1.quit()
+        appium_driver_1 = None
+        print("Appium-1 session stopped.")
     else:
-        print("No Appium session to stop.")
+        print("No Appium-1 session to stop.")
 
 
 # Example usage
@@ -70,9 +70,9 @@ def appium_stop():
 # appium_stop()
 
 if __name__ == "__main__":
-    appium_start()
+    appium_start_1()
     appium_test1()
-    appium_stop()
+    appium_stop_1()
 
 
 # from appium import webdriver

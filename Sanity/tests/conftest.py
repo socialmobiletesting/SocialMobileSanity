@@ -1,5 +1,5 @@
 import pytest
-from Sanity.config.appium_config import appium_start
+from Sanity.config.appium_config import appium_start_1
 
 
 @pytest.fixture(scope="session")
@@ -14,7 +14,7 @@ def device_id2():
 
 @pytest.fixture(scope="function")
 def appium_driver1():
-    driver = appium_start()
+    driver = appium_start_1()
     yield driver
     # driver.quit()
 
