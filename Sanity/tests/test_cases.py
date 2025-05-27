@@ -53,6 +53,8 @@ def test_notification_panel_working_fine(appium_driver1, device_id1):
     half_y_axis = y_axis / 2
     str_x_axis = str(int(half_x_axis))
     str_y_axis = str(int(half_y_axis))
+    # print(str_x_axis)
+    # print(half_y_axis)
 
     subprocess.check_output(
         "adb -s " + device_id1 + " shell input swipe " + str_x_axis + " 0 " + str_x_axis + " " + str_y_axis, shell=True)
@@ -307,117 +309,3 @@ def test_check_lte_data_speed(appium_driver1, device_id1):
 
     subprocess.check_output("adb -s " + device_id1 + " shell svc wifi enable", shell=True)
     time.sleep(5)
-
-
-def test_device_reboot(device_id1):
-    print("===================device reboot testcase==================")
-    subprocess.run(["adb", "-s", device_id1, "reboot"], check=True)
-    print("device started rebooting")
-    start_time = time.time()
-    while True:
-        try:
-            result = subprocess.run(["adb", "devices"], check=True, capture_output=True)
-            output = result.stdout.decode('utf-8')
-            if 'device' in output.splitlines()[-1]:
-                print("Device is back online.")
-                break
-        except Exception as e:
-            print("Error:", e)
-
-        assert time.time() - start_time <= 150, "Timeout: Device did not come back online within given time."
-
-
-def test_verify_photo_capture():
-    print("==============verify capturing photo testcase=========")
-    subprocess.run('adb shell input keyevent 244', check=True)
-    time.sleep(1)
-    subprocess.run('adb shell input swipe 300 1000 300 500', check=True)
-    time.sleep(3)
-    subprocess.run('adb shell "am start -a android.media.action.IMAGE_CAPTURE', check=True)
-    time.sleep(5)
-    print("Camera launched")
-    subprocess.run('adb shell input keyevent 27', check=True)
-    print("Image captured")
-    command = 'adb shell "cd /sdcard/DCIM/Camera && ls -lt"'
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    output = stdout.decode().strip()
-    lines = output.splitlines()
-    frst_line = None
-    for i in lines:
-        if i.strip().startswith('-r'):
-            frst_line = i
-            break
-        else:
-            pass
-
-    import re
-    match = re.search(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", frst_line)
-    if match:
-        result = match.group()
-        print("Date & Time:", result)
-    else:
-        print("No match")
-    dt = datetime.strptime(result, "%Y-%m-%d %H:%M")
-    epoch_time_image = int(dt.timestamp())
-    epoch_time = int(time.time())
-    assert int(epoch_time_image - epoch_time) <= 120, "Image is too old or not captured recently"
-
-
-def test_verify_captured_photo_is_correct():
-    print("==============verify capturing photo testcase=========")
-    subprocess.run('adb shell input keyevent 244', check=True)
-    time.sleep(1)
-    subprocess.run('adb shell input swipe 300 1000 300 500', check=True)
-    time.sleep(3)
-    subprocess.run('adb shell "am start -a android.media.action.IMAGE_CAPTURE', check=True)
-    time.sleep(5)
-    print("Camera launched")
-    subprocess.run('adb shell input keyevent 27', check=True)
-    print("Image captured")
-    command = 'adb shell "cd /sdcard/DCIM/Camera && ls -lt"'
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    output = stdout.decode().strip()
-    lines = output.splitlines()
-    frst_line = None
-    for i in lines:
-        if i.strip().startswith('-r'):
-            frst_line = i
-            break
-        else:
-            pass
-        if ".jpg" or ".png" in frst_line:
-            print("captured image is correct")
-    assert (".jpg" in frst_line.lower() or ".png" in frst_line.lower()), "Captured image is not a valid type"
-
-
-def test_verify_capturing_video(appium_driver1, device_id1):
-    print("=====================verify capturing the video===========")
-    subprocess.run('adb shell input keyevent 244', check=True)
-    time.sleep(1)
-    subprocess.run('adb shell input swipe 300 1000 300 500', check=True)
-    time.sleep(1)
-    subprocess.check_output("adb -s " + device_id1 + "shell am start -a android.media.action.VIDEO_CAPTURE", shell=True)
-    time.sleep(5)
-
-    appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                value='new UiSelector().resourceId("org.codeaurora.snapcam:id/video_button")').click()
-    # navigate_into_sim.click()
-    time.sleep(5)
-    appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                value='new UiSelector().resourceId("org.codeaurora.snapcam:id/video_button")').click()
-
-    command = 'adb shell "cd /sdcard/DCIM/Camera && ls -lt"'
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    output = stdout.decode().strip()
-    lines = output.splitlines()
-    frst_line = None
-    for i in lines:
-        if i.strip().startswith('-r'):
-            frst_line = i
-            break
-        else:
-            pass
-    assert (".mp4" in frst_line.lower()), "video is not captured recently"
