@@ -308,4 +308,48 @@ def test_check_lte_data_speed(appium_driver1, device_id1):
         print(f"Unexpected error: {e}")
 
     subprocess.check_output("adb -s " + device_id1 + " shell svc wifi enable", shell=True)
+#     time.sleep(5)
+
+
+def test_make_a_call(appium_driver1, appium_driver2, device_id1, device_id2, device_id1_number, device_id2_number):
+    print("=====================test_make_a_call()")
+
+    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
     time.sleep(5)
+
+    subprocess.check_output("adb -s " + device_id2 + " shell am force-stop com.android.settings", shell=True)
+    time.sleep(5)
+
+    subprocess.check_output(
+        "adb -s " + device_id2 + " shell am start -n com.android.settings/com.android.settings.Settings")
+    time.sleep(5)
+
+    subprocess.check_output(
+        "adb -s " + device_id1 + " shell am start -a android.intent.action.CALL -d tel:" + device_id2_number,
+        shell=True)
+    time.sleep(10)
+
+    try:
+        call_not_placed = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                      value='new UiSelector().resourceId("android:id/button1")')
+        call_not_placed.click()
+    except Exception as e:
+        print(e)
+
+    subprocess.check_output("adb -s " + device_id2 + " shell input keyevent KEYCODE_HEADSETHOOK", shell=True)
+    time.sleep(5)
+    try:
+        call_screen = appium_driver2.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                                  value='new UiSelector().resourceId("com.android.dialer:id/contactgrid_contact_name")').get_attribute(
+            "text")
+
+        call_validation = call_screen.replace(" ", "")
+
+        assert call_validation == "+91" + device_id1_number, f"Call not connected: expected {"+91" + device_id1_number}, got {call_validation}"
+
+    except Exception as e:
+        raise AssertionError(f"Call validation failed due to exception: {str(e)}")
+
+    time.sleep(10)
+    ending_call = appium_driver1.find_element(by=AppiumBy.ACCESSIBILITY_ID, value='End call')
+    ending_call.click()
