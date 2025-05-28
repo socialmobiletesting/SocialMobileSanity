@@ -5,7 +5,10 @@ import time
 from datetime import datetime
 
 from appium.webdriver.common.appiumby import AppiumBy
-
+from selenium.common import NoSuchElementException
+from Sanity.config.appium_config import *
+from Sanity.config.myconfig import main_data
+from Sanity.tests.conftest import device_id1
 
 def test_sample(appium_driver1, device_id1):
     subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
@@ -353,3 +356,187 @@ def test_make_a_call(appium_driver1, appium_driver2, device_id1, device_id2, dev
     time.sleep(10)
     ending_call = appium_driver1.find_element(by=AppiumBy.ACCESSIBILITY_ID, value='End call')
     ending_call.click()
+
+
+def test_device_reboot(device_id1):
+    print("===================device reboot testcase==================")
+    subprocess.run(["adb", "-s", device_id1, "reboot"], check=True)
+    print("device started rebooting")
+    start_time = time.time()
+    while True:
+        try:
+            result = subprocess.run(["adb", "devices"], check=True, capture_output=True)
+            output = result.stdout.decode('utf-8')
+            if 'device' in output.splitlines()[-1]:
+                print("Device is back online.")
+                break
+        except Exception as e:
+            print("Error:", e)
+
+        assert time.time() - start_time <= 150, "Timeout: Device did not come back online within given time."
+
+
+def test_verify_photo_capture(device_id1):
+    print("==============verify capturing photo testcase=========")
+    subprocess.run('adb -s' + device_id1 +'shell input keyevent 244', check=True)
+    time.sleep(1)
+    subprocess.run('adb -s' + device_id1 + 'shell input swipe 300 1000 300 500', check=True)
+    time.sleep(3)
+    subprocess.run('adb -s' +device_id1 + 'shell "am start -a android.media.action.IMAGE_CAPTURE', check=True)
+    time.sleep(5)
+    print("Camera launched")
+    subprocess.run('adb -s' +device_id1 + 'shell input keyevent 27', check=True)
+    print("Image captured")
+    command = 'adb -s'+ device_id1 +'shell "cd /sdcard/DCIM/Camera && ls -lt"'
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    output = stdout.decode().strip()
+    lines = output.splitlines()
+    frst_line = None
+    for i in lines:
+        if i.strip().startswith('-r'):
+            frst_line = i
+            break
+        else:
+            pass
+
+    import re
+    match = re.search(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", frst_line)
+    if match:
+        result = match.group()
+        print("Date & Time:", result)
+    else:
+        print("No match")
+    dt = datetime.strptime(result, "%Y-%m-%d %H:%M")
+    epoch_time_image = int(dt.timestamp())
+    epoch_time = int(time.time())
+    assert int(epoch_time_image - epoch_time) <= 120, "Image is too old or not captured recently"
+
+
+def test_verify_captured_photo_is_correct(device_id1):
+    print("==============verify capturing photo testcase=========")
+    subprocess.run('adb -s' + device_id1 + 'shell input keyevent 244', check=True)
+    time.sleep(1)
+    subprocess.run('adb -s' + device_id1 + 'shell input swipe 300 1000 300 500', check=True)
+    time.sleep(1)
+    time.sleep(3)
+    subprocess.run('adb -s' + device_id1 + 'shell "am start -a android.media.action.IMAGE_CAPTURE', check=True)
+    time.sleep(5)
+    print("Camera launched")
+    subprocess.run('adb -s' + device_id1 + 'shell input keyevent 27', check=True)
+    print("Image captured")
+    command = 'adb -s' + device_id1+ 'shell "cd /sdcard/DCIM/Camera && ls -lt"'
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    output = stdout.decode().strip()
+    lines = output.splitlines()
+    frst_line = None
+    for i in lines:
+        if i.strip().startswith('-r'):
+            frst_line = i
+            break
+        else:
+            pass
+        if ".jpg" or ".png" in frst_line:
+            print("captured image is correct")
+    assert (".jpg" in frst_line.lower() or ".png" in frst_line.lower()), "Captured image is not a valid type"
+
+
+def test_verify_capturing_video(appium_driver1, device_id1):
+    print("=====================verify capturing the video===========")
+    subprocess.run('adb -s' + device_id1 + 'shell input keyevent 244', check=True)
+    time.sleep(1)
+    subprocess.run('adb -s' + device_id1+ 'shell input swipe 300 1000 300 500', check=True)
+    time.sleep(1)
+    subprocess.check_output("adb -s " + device_id1 + "shell am start -a android.media.action.VIDEO_CAPTURE", shell=True)
+    time.sleep(5)
+
+    appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                value='new UiSelector().resourceId("org.codeaurora.snapcam:id/video_button")').click()
+    # navigate_into_sim.click()
+    time.sleep(5)
+    appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                value='new UiSelector().resourceId("org.codeaurora.snapcam:id/video_button")').click()
+
+    command = 'adb -s'+ device_id1+ 'shell "cd /sdcard/DCIM/Camera && ls -lt"'
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    output = stdout.decode().strip()
+    lines = output.splitlines()
+    frst_line = None
+    for i in lines:
+        if i.strip().startswith('-r'):
+            frst_line = i
+            break
+        else:
+            pass
+    assert (".mp4" in frst_line.lower()), "video is not captured recently"
+
+
+
+def test_verify_connecting_2_4_and_5ghz(appium_driver1, device_id1):
+    print("========connecting 2.4Ghz and 5Ghz wifi network")
+    cmd = f'adb -s'+ device_id1 + ' shell am start -a android.settings.WIFI_SETTINGS'
+    subprocess.run(cmd, shell=True)
+    time.sleep(2)
+    try:
+        time.sleep(7)
+        element = appium_driver1.find_element(
+            by=AppiumBy.ANDROID_UIAUTOMATOR,
+            value=f'new UiSelector().text("{main_data.SSID_2}")'
+        )
+
+    except NoSuchElementException:
+        try:
+            element = appium_driver1.find_element(
+                by=AppiumBy.ANDROID_UIAUTOMATOR,
+                value=(
+                    f'new UiScrollable(new UiSelector().scrollable(true).instance(0))'
+                    f'.scrollIntoView(new UiSelector().text("{main_data.SSID_2}"))'
+                )
+            )
+        except NoSuchElementException:
+            print("SSID is not visible")
+
+    if element.is_displayed():
+        print("SSID is visible")
+        element.click()
+        time.sleep(2)
+        appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                    value='new UiSelector().resourceId("com.android.settings:id/password")').send_keys(
+            main_data.PASSWORD_2)
+        appium_driver1.find_element(
+            by=AppiumBy.ANDROID_UIAUTOMATOR,
+            value='new UiSelector().text("Connect")'
+        ).click()
+    try:
+        time.sleep(7)
+        element = appium_driver1.find_element(
+            by=AppiumBy.ANDROID_UIAUTOMATOR,
+            value=f'new UiSelector().text("{main_data.SSID_5}")'
+        )
+
+    except NoSuchElementException:
+        try:
+            element = appium_driver1.find_element(
+                by=AppiumBy.ANDROID_UIAUTOMATOR,
+                value=(
+                    'new UiScrollable(new UiSelector().scrollable(true).instance(0))'
+                    f'.scrollIntoView(new UiSelector().text("{main_data.SSID_5}"))'
+                )
+            )
+        except NoSuchElementException:
+            print("SSID is not visible")
+
+    if element.is_displayed():
+        print("SSID is visible")
+        element.click()
+        time.sleep(2)
+        appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
+                                    value='new UiSelector().resourceId("com.android.settings:id/password")').send_keys(
+            main_data.PASSWORD_5)
+        connect_btn=(appium_driver1.find_element(
+            by=AppiumBy.ANDROID_UIAUTOMATOR,
+            value='new UiSelector().text("Connect")'))
+        assert connect_btn.is_displayed(),"connect button is not there"
+        connect_btn.click()
