@@ -24,3 +24,13 @@ def appium_driver1():
 def appium_driver2():
     driver2 = appium_start_2()
     yield driver2
+
+
+@pytest.fixture(scope="session")
+def device_id1_number():
+    return data['device_id1_number']
+
+
+@pytest.fixture(scope="session")
+def device_id2_number():
+    return data['device_id2_number']
