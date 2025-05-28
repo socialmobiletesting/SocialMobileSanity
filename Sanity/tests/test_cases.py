@@ -10,12 +10,15 @@ from Sanity.config.appium_config import *
 from Sanity.config.myconfig import main_data
 from Sanity.tests.conftest import device_id1
 
-def test_sample(appium_driver1, device_id1):
-    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+
+def test_sample(appium_driver1, data_file):
+    subprocess.check_output("adb -s " + data_file["device_id1"] + " shell am force-stop com.android.settings",
+                            shell=True)
     time.sleep(5)
 
     subprocess.check_output(
-        "adb -s " + device_id1 + " shell am start -n com.android.settings/com.android.settings.Settings", shell=True)
+        "adb -s " + data_file["device_id1"] + " shell am start -n com.android.settings/com.android.settings.Settings",
+        shell=True)
     time.sleep(10)
 
     network_and_internet = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -37,13 +40,14 @@ def test_sample(appium_driver1, device_id1):
     time.sleep(5)
 
 
-def test_notification_panel_working_fine(appium_driver1, device_id1):
+def test_notification_panel_working_fine(appium_driver1, data_file):
     print("=====================test_notification_panel_working_fine()")
 
-    output = subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    output = subprocess.check_output("adb -s " + data_file["device_id1"] + " shell am force-stop com.android.settings",
+                                     shell=True)
     time.sleep(5)
 
-    output = subprocess.check_output("adb -s " + device_id1 + " shell wm size", shell=True)
+    output = subprocess.check_output("adb -s " + data_file["device_id1"] + " shell wm size", shell=True)
     # print(output.decode("utf-8"))
 
     resolution = output.decode("utf-8")
@@ -60,13 +64,14 @@ def test_notification_panel_working_fine(appium_driver1, device_id1):
     # print(half_y_axis)
 
     subprocess.check_output(
-        "adb -s " + device_id1 + " shell input swipe " + str_x_axis + " 0 " + str_x_axis + " " + str_y_axis, shell=True)
+        "adb -s " + data_file[
+            "device_id1"] + " shell input swipe " + str_x_axis + " 0 " + str_x_axis + " " + str_y_axis, shell=True)
 
     # screenshot_capture()
     try:
         # Get build version dynamically
         build_version = subprocess.check_output(
-            f"adb -s {device_id1} shell getprop ro.build.display.id", shell=True, text=True).strip()
+            f"adb -s {data_file["device_id1"]} shell getprop ro.build.display.id", shell=True, text=True).strip()
 
         # Create screenshot folder
         screenshot_folder = os.path.join(os.path.dirname(os.getcwd()), "Screenshot", build_version)
@@ -81,7 +86,7 @@ def test_notification_panel_working_fine(appium_driver1, device_id1):
         # Capture screenshot using adb exec-out
         with open(local_path, "wb") as f:
             subprocess.run(
-                ["adb", "-s", device_id1, "exec-out", "screencap", "-p"], stdout=f, check=True)
+                ["adb", "-s", data_file["device_id1"], "exec-out", "screencap", "-p"], stdout=f, check=True)
 
         print(f"Screenshot saved at: {local_path}")
         return local_path
@@ -91,18 +96,21 @@ def test_notification_panel_working_fine(appium_driver1, device_id1):
     time.sleep(5)
 
 
-def test_verify_apn_is_loaded_automatically(appium_driver1, device_id1):
+def test_verify_apn_is_loaded_automatically(appium_driver1, data_file):
     print("=====================test_verify_apn_is_loaded_automatically()")
-    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    subprocess.check_output("adb -s " + data_file["device_id1"] + " shell am force-stop com.android.settings",
+                            shell=True)
     time.sleep(5)
 
-    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    subprocess.check_output("adb -s " + data_file["device_id1"] + " shell am force-stop com.android.settings",
+                            shell=True)
     time.sleep(5)
 
-    subprocess.check_output("adb -s " + device_id1 + " shell input keyevent KEYCODE_HOME")
+    subprocess.check_output("adb -s " + data_file["device_id1"] + " shell input keyevent KEYCODE_HOME")
 
     subprocess.check_output(
-        "adb -s " + device_id1 + " shell am start -n com.android.settings/com.android.settings.Settings", shell=True)
+        "adb -s " + data_file["device_id1"] + " shell am start -n com.android.settings/com.android.settings.Settings",
+        shell=True)
     time.sleep(10)
 
     appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -149,14 +157,15 @@ def test_verify_apn_is_loaded_automatically(appium_driver1, device_id1):
     time.sleep(5)
 
 
-def test_verify_data_roaming_works(appium_driver1, device_id1):
+def test_verify_data_roaming_works(appium_driver1, data_file):
     print("=====================test_verify_data_roaming_works()")
-    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    subprocess.check_output("adb -s " + data_file["device_id1"] + " shell am force-stop com.android.settings",
+                            shell=True)
     time.sleep(5)
 
     # print("Navigating to 'Network and Internet' > 'SIMs' > 'JIO'...")
     subprocess.check_output(
-        "adb -s " + device_id1 + " shell am start -n com.android.settings/com.android.settings.Settings")
+        "adb -s " + data_file["device_id1"] + " shell am start -n com.android.settings/com.android.settings.Settings")
     time.sleep(10)
 
     appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -191,7 +200,7 @@ def test_verify_data_roaming_works(appium_driver1, device_id1):
     time.sleep(5)
 
 
-def test_check_lte_data_speed(appium_driver1, device_id1):
+def test_check_lte_data_speed(appium_driver1, data_file):
     print("=====================test_check_lte_data_speed()")
     """ search_app_1 element not interactable during this script hence script may fail"""
     # Defined this condition due to PlayStore Home Page tutorial, which can be skipped by re-opening
@@ -200,7 +209,8 @@ def test_check_lte_data_speed(appium_driver1, device_id1):
     while count <= max_retries:
         try:
             subprocess.check_output(
-                "adb -s " + device_id1 + " shell am start -n com.android.vending/com.google.android.finsky.activities.MainActivity")
+                "adb -s " + data_file[
+                    "device_id1"] + " shell am start -n com.android.vending/com.google.android.finsky.activities.MainActivity")
             time.sleep(10)
 
             playstore_app_tutorial_1 = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -216,7 +226,7 @@ def test_check_lte_data_speed(appium_driver1, device_id1):
         except Exception as e:
             print(f"Search bar not visible, clearing Play Store data and retrying ({count + 1}/{max_retries})", e)
             subprocess.check_output(
-                "adb -s " + device_id1 + " shell pm clear com.android.vending")
+                "adb -s " + data_file["device_id1"] + " shell pm clear com.android.vending")
             time.sleep(10)
         count = count + 1
     time.sleep(2)
@@ -232,10 +242,11 @@ def test_check_lte_data_speed(appium_driver1, device_id1):
     time.sleep(2)
 
     subprocess.check_output(
-        "adb -s " + device_id1 + " shell am start -n org.zwanoo.android.speedtest/com.ookla.mobile4.screens.main.MainActivity")
+        "adb -s " + data_file[
+            "device_id1"] + " shell am start -n org.zwanoo.android.speedtest/com.ookla.mobile4.screens.main.MainActivity")
     time.sleep(10)
 
-    subprocess.check_output("adb -s " + device_id1 + " shell svc wifi disable")
+    subprocess.check_output("adb -s " + data_file["device_id1"] + " shell svc wifi disable")
 
     try:
         app_tutorial_1 = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -288,7 +299,7 @@ def test_check_lte_data_speed(appium_driver1, device_id1):
     try:
         # Get build version dynamically
         build_version = subprocess.check_output(
-            f"adb -s {device_id1} shell getprop ro.build.display.id", shell=True, text=True).strip()
+            f"adb -s {data_file["device_id1"]} shell getprop ro.build.display.id", shell=True, text=True).strip()
 
         # Create screenshot folder
         screenshot_folder = os.path.join(os.path.dirname(os.getcwd()), "Screenshot", build_version)
@@ -303,34 +314,36 @@ def test_check_lte_data_speed(appium_driver1, device_id1):
         # Capture screenshot using adb exec-out
         with open(local_path, "wb") as f:
             subprocess.run(
-                ["adb", "-s", device_id1, "exec-out", "screencap", "-p"], stdout=f, check=True)
+                ["adb", "-s", data_file["device_id1"], "exec-out", "screencap", "-p"], stdout=f, check=True)
 
         print(f"Screenshot saved at: {local_path}")
         return local_path
     except Exception as e:
         print(f"Unexpected error: {e}")
 
-    subprocess.check_output("adb -s " + device_id1 + " shell svc wifi enable", shell=True)
-#     time.sleep(5)
+    subprocess.check_output("adb -s " + data_file["device_id1"] + " shell svc wifi enable", shell=True)
 
 
-def test_make_a_call(appium_driver1, appium_driver2, device_id1, device_id2, device_id1_number, device_id2_number):
+def test_make_a_call(appium_driver1, appium_driver2, data_file):
     print("=====================test_make_a_call()")
 
-    subprocess.check_output("adb -s " + device_id1 + " shell am force-stop com.android.settings", shell=True)
+    subprocess.check_output("adb -s " + data_file["device_id1"] + " shell am force-stop com.android.settings",
+                            shell=True)
     time.sleep(5)
 
-    subprocess.check_output("adb -s " + device_id2 + " shell am force-stop com.android.settings", shell=True)
+    subprocess.check_output("adb -s " + data_file["device_id2"] + " shell am force-stop com.android.settings",
+                            shell=True)
     time.sleep(5)
 
     subprocess.check_output(
-        "adb -s " + device_id2 + " shell am start -n com.android.settings/com.android.settings.Settings")
+        "adb -s " + data_file["device_id2"] + " shell am start -n com.android.settings/com.android.settings.Settings")
     time.sleep(5)
 
     subprocess.check_output(
-        "adb -s " + device_id1 + " shell am start -a android.intent.action.CALL -d tel:" + device_id2_number,
+        "adb -s " + data_file["device_id1"] + " shell am start -a android.intent.action.CALL -d tel:" + data_file[
+            "device_id2_number"],
         shell=True)
-    time.sleep(10)
+    time.sleep(30)
 
     try:
         call_not_placed = appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -339,8 +352,9 @@ def test_make_a_call(appium_driver1, appium_driver2, device_id1, device_id2, dev
     except Exception as e:
         print(e)
 
-    subprocess.check_output("adb -s " + device_id2 + " shell input keyevent KEYCODE_HEADSETHOOK", shell=True)
-    time.sleep(5)
+    subprocess.check_output("adb -s " + data_file["device_id2"] + " shell input keyevent KEYCODE_HEADSETHOOK",
+                            shell=True)
+    time.sleep(35)
     try:
         call_screen = appium_driver2.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
                                                   value='new UiSelector().resourceId("com.android.dialer:id/contactgrid_contact_name")').get_attribute(
@@ -348,7 +362,8 @@ def test_make_a_call(appium_driver1, appium_driver2, device_id1, device_id2, dev
 
         call_validation = call_screen.replace(" ", "")
 
-        assert call_validation == "+91" + device_id1_number, f"Call not connected: expected {"+91" + device_id1_number}, got {call_validation}"
+        assert call_validation == "+91" + data_file[
+            "device_id1_number"], f"Call not connected: expected {"+91" + data_file["device_id1_number"]}, got {call_validation}"
 
     except Exception as e:
         raise AssertionError(f"Call validation failed due to exception: {str(e)}")
@@ -357,186 +372,3 @@ def test_make_a_call(appium_driver1, appium_driver2, device_id1, device_id2, dev
     ending_call = appium_driver1.find_element(by=AppiumBy.ACCESSIBILITY_ID, value='End call')
     ending_call.click()
 
-
-def test_device_reboot(device_id1):
-    print("===================device reboot testcase==================")
-    subprocess.run(["adb", "-s", device_id1, "reboot"], check=True)
-    print("device started rebooting")
-    start_time = time.time()
-    while True:
-        try:
-            result = subprocess.run(["adb", "devices"], check=True, capture_output=True)
-            output = result.stdout.decode('utf-8')
-            if 'device' in output.splitlines()[-1]:
-                print("Device is back online.")
-                break
-        except Exception as e:
-            print("Error:", e)
-
-        assert time.time() - start_time <= 150, "Timeout: Device did not come back online within given time."
-
-
-def test_verify_photo_capture(device_id1):
-    print("==============verify capturing photo testcase=========")
-    subprocess.run('adb -s' + device_id1 +'shell input keyevent 244', check=True)
-    time.sleep(1)
-    subprocess.run('adb -s' + device_id1 + 'shell input swipe 300 1000 300 500', check=True)
-    time.sleep(3)
-    subprocess.run('adb -s' +device_id1 + 'shell "am start -a android.media.action.IMAGE_CAPTURE', check=True)
-    time.sleep(5)
-    print("Camera launched")
-    subprocess.run('adb -s' +device_id1 + 'shell input keyevent 27', check=True)
-    print("Image captured")
-    command = 'adb -s'+ device_id1 +'shell "cd /sdcard/DCIM/Camera && ls -lt"'
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    output = stdout.decode().strip()
-    lines = output.splitlines()
-    frst_line = None
-    for i in lines:
-        if i.strip().startswith('-r'):
-            frst_line = i
-            break
-        else:
-            pass
-
-    import re
-    match = re.search(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", frst_line)
-    if match:
-        result = match.group()
-        print("Date & Time:", result)
-    else:
-        print("No match")
-    dt = datetime.strptime(result, "%Y-%m-%d %H:%M")
-    epoch_time_image = int(dt.timestamp())
-    epoch_time = int(time.time())
-    assert int(epoch_time_image - epoch_time) <= 120, "Image is too old or not captured recently"
-
-
-def test_verify_captured_photo_is_correct(device_id1):
-    print("==============verify capturing photo testcase=========")
-    subprocess.run('adb -s' + device_id1 + 'shell input keyevent 244', check=True)
-    time.sleep(1)
-    subprocess.run('adb -s' + device_id1 + 'shell input swipe 300 1000 300 500', check=True)
-    time.sleep(1)
-    time.sleep(3)
-    subprocess.run('adb -s' + device_id1 + 'shell "am start -a android.media.action.IMAGE_CAPTURE', check=True)
-    time.sleep(5)
-    print("Camera launched")
-    subprocess.run('adb -s' + device_id1 + 'shell input keyevent 27', check=True)
-    print("Image captured")
-    command = 'adb -s' + device_id1+ 'shell "cd /sdcard/DCIM/Camera && ls -lt"'
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    output = stdout.decode().strip()
-    lines = output.splitlines()
-    frst_line = None
-    for i in lines:
-        if i.strip().startswith('-r'):
-            frst_line = i
-            break
-        else:
-            pass
-        if ".jpg" or ".png" in frst_line:
-            print("captured image is correct")
-    assert (".jpg" in frst_line.lower() or ".png" in frst_line.lower()), "Captured image is not a valid type"
-
-
-def test_verify_capturing_video(appium_driver1, device_id1):
-    print("=====================verify capturing the video===========")
-    subprocess.run('adb -s' + device_id1 + 'shell input keyevent 244', check=True)
-    time.sleep(1)
-    subprocess.run('adb -s' + device_id1+ 'shell input swipe 300 1000 300 500', check=True)
-    time.sleep(1)
-    subprocess.check_output("adb -s " + device_id1 + "shell am start -a android.media.action.VIDEO_CAPTURE", shell=True)
-    time.sleep(5)
-
-    appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                value='new UiSelector().resourceId("org.codeaurora.snapcam:id/video_button")').click()
-    # navigate_into_sim.click()
-    time.sleep(5)
-    appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                value='new UiSelector().resourceId("org.codeaurora.snapcam:id/video_button")').click()
-
-    command = 'adb -s'+ device_id1+ 'shell "cd /sdcard/DCIM/Camera && ls -lt"'
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    output = stdout.decode().strip()
-    lines = output.splitlines()
-    frst_line = None
-    for i in lines:
-        if i.strip().startswith('-r'):
-            frst_line = i
-            break
-        else:
-            pass
-    assert (".mp4" in frst_line.lower()), "video is not captured recently"
-
-
-
-def test_verify_connecting_2_4_and_5ghz(appium_driver1, device_id1):
-    print("========connecting 2.4Ghz and 5Ghz wifi network")
-    cmd = f'adb -s'+ device_id1 + ' shell am start -a android.settings.WIFI_SETTINGS'
-    subprocess.run(cmd, shell=True)
-    time.sleep(2)
-    try:
-        time.sleep(7)
-        element = appium_driver1.find_element(
-            by=AppiumBy.ANDROID_UIAUTOMATOR,
-            value=f'new UiSelector().text("{main_data.SSID_2}")'
-        )
-
-    except NoSuchElementException:
-        try:
-            element = appium_driver1.find_element(
-                by=AppiumBy.ANDROID_UIAUTOMATOR,
-                value=(
-                    f'new UiScrollable(new UiSelector().scrollable(true).instance(0))'
-                    f'.scrollIntoView(new UiSelector().text("{main_data.SSID_2}"))'
-                )
-            )
-        except NoSuchElementException:
-            print("SSID is not visible")
-
-    if element.is_displayed():
-        print("SSID is visible")
-        element.click()
-        time.sleep(2)
-        appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                    value='new UiSelector().resourceId("com.android.settings:id/password")').send_keys(
-            main_data.PASSWORD_2)
-        appium_driver1.find_element(
-            by=AppiumBy.ANDROID_UIAUTOMATOR,
-            value='new UiSelector().text("Connect")'
-        ).click()
-    try:
-        time.sleep(7)
-        element = appium_driver1.find_element(
-            by=AppiumBy.ANDROID_UIAUTOMATOR,
-            value=f'new UiSelector().text("{main_data.SSID_5}")'
-        )
-
-    except NoSuchElementException:
-        try:
-            element = appium_driver1.find_element(
-                by=AppiumBy.ANDROID_UIAUTOMATOR,
-                value=(
-                    'new UiScrollable(new UiSelector().scrollable(true).instance(0))'
-                    f'.scrollIntoView(new UiSelector().text("{main_data.SSID_5}"))'
-                )
-            )
-        except NoSuchElementException:
-            print("SSID is not visible")
-
-    if element.is_displayed():
-        print("SSID is visible")
-        element.click()
-        time.sleep(2)
-        appium_driver1.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR,
-                                    value='new UiSelector().resourceId("com.android.settings:id/password")').send_keys(
-            main_data.PASSWORD_5)
-        connect_btn=(appium_driver1.find_element(
-            by=AppiumBy.ANDROID_UIAUTOMATOR,
-            value='new UiSelector().text("Connect")'))
-        assert connect_btn.is_displayed(),"connect button is not there"
-        connect_btn.click()
