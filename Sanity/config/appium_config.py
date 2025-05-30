@@ -59,6 +59,3 @@ def appium_start_2():
 #     else:
 #         print("No Appium-1 session to stop.")
 
-
-# if __name__ == "__main__":
-#     appium_start_1()
