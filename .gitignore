@@ -1,2 +1,6 @@
 .idea/
 /Sanity/Screenshot/
+__pycache__/
+*.pyc
+*.pyo
+
