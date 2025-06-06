@@ -3,6 +3,7 @@ import os
 import subprocess
 import time
 from datetime import datetime
+from conftest import screenshot_device1, start_adb_log_capture1, stop_adb_log_capture1
 
 from appium.webdriver.common.appiumby import AppiumBy
 
@@ -34,11 +35,15 @@ def test_sample(appium_driver1, data_file):
     time.sleep(5)
 
 
-def test_notification_panel_working_fine(appium_driver1, data_file):
+def test_notification_panel_working_fine(data_file):
     print("=====================test_notification_panel_working_fine()")
 
-    output = subprocess.check_output("adb -s " + data_file["device_id1"] + " shell am force-stop com.android.settings", shell=True)
-    time.sleep(5)
+    start_adb_log_capture1()
+
+    subprocess.check_output(
+        f'adb -s {data_file["device_id1"]} shell input keyevent 82 && adb -s {data_file["device_id1"]} shell input keyevent 82',
+    shell=True)
+    time.sleep(3)
 
     output = subprocess.check_output("adb -s " + data_file["device_id1"] + " shell wm size", shell=True)
     # print(output.decode("utf-8"))
@@ -58,33 +63,12 @@ def test_notification_panel_working_fine(appium_driver1, data_file):
 
     subprocess.check_output(
         "adb -s " + data_file["device_id1"] + " shell input swipe " + str_x_axis + " 0 " + str_x_axis + " " + str_y_axis, shell=True)
+    time.sleep(2)
 
-    # screenshot_capture()
-    try:
-        # Get build version dynamically
-        build_version = subprocess.check_output(
-            f"adb -s {data_file["device_id1"]} shell getprop ro.build.display.id", shell=True, text=True).strip()
+    screenshot_path = screenshot_device1()
+    assert screenshot_path is not None
 
-        # Create screenshot folder
-        screenshot_folder = os.path.join(os.path.dirname(os.getcwd()), "Screenshot", build_version)
-        os.makedirs(screenshot_folder, exist_ok=True)
-
-        # Define screenshot name
-        function_name = inspect.currentframe().f_code.co_name
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        screenshot_name = f"{function_name}_{timestamp}.png"
-        local_path = os.path.join(screenshot_folder, screenshot_name)
-
-        # Capture screenshot using adb exec-out
-        with open(local_path, "wb") as f:
-            subprocess.run(
-                ["adb", "-s", data_file["device_id1"], "exec-out", "screencap", "-p"], stdout=f, check=True)
-
-        print(f"Screenshot saved at: {local_path}")
-        return local_path
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-
+    stop_adb_log_capture1()
     time.sleep(5)
 
 
