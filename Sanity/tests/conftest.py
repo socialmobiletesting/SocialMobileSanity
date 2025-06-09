@@ -98,3 +98,4 @@ def stop_adb_log_capture1():
             print(f"[WARN] No running ADB log capture found for {data["device_id1"]}")
     except Exception as e:
         print(f"[ERROR] Unexpected error at stop_adb_log_capture1: {e}")
+
